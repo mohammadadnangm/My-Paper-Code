@@ -28,7 +28,7 @@ except Exception as e:
 data_accumulator = []  # List to accumulate data
 
 # Define the size of each cell (in meters)
-cell_size = 250  # 50m x 50m
+cell_size = 500
 
 # Create a data structure to hold the cells and the vehicles in each cell
 cells = {}
@@ -215,9 +215,20 @@ def select_group_leader(random_cell_id):
 
 
 # Select a group leader for the random cell
-group_leader_id = select_group_leader(random_cell_id)
+#group_leader_id = select_group_leader(random_cell_id)
+#print(f"Selected random cell ID: {random_cell_id}")
+#print(f"Selected group leader ID: {group_leader_id}")
 
-# Print the selected random cell ID and the group leader ID
-print(f"Selected random cell ID: {random_cell_id}")
-print(f"Selected group leader ID: {group_leader_id}")
+# Load the updated DataFrame from the CSV file
+vehicle_data = pd.read_csv('vehicle_data.csv')
 
+# Get the count of vehicles in each cell
+cell_vehicle_counts = vehicle_data['cell_id'].value_counts()
+
+# Plot the graph
+plt.figure(figsize=(10, 6))
+plt.bar(cell_vehicle_counts.index, cell_vehicle_counts.values, color='blue')
+plt.xlabel('Cell ID')
+plt.ylabel('Number of Vehicles')
+plt.title('Distribution of Vehicles in Cells')
+plt.show()
