@@ -5,6 +5,8 @@ import pytz
 import datetime
 import math
 import random
+import ast
+import matplotlib.pyplot as plt
 
 # Function to get current date and time
 def getdatetime():
@@ -93,3 +95,129 @@ vehicle_data.to_csv('vehicle_data.csv', index=False)
 
 # When finished reading the data, stop the simulation
 traci.close()  # Close the TraCI connection
+
+# Assuming the vehicle_data DataFrame is already loaded
+vehicle_data = pd.read_csv('vehicle_data.csv')
+
+# Get a list of unique cell IDs
+unique_cell_ids = vehicle_data['cell_id'].unique()
+
+# Select a random cell ID
+random_cell_id = random.choice(unique_cell_ids)
+
+# Function to evaluate resources
+def evaluate_resources(random_cell_id):
+    # Filter the DataFrame to only include vehicles in the given cell
+    vehicles_in_cell = vehicle_data[vehicle_data['cell_id'] == str(random_cell_id)]
+
+    # Iterate over all vehicles in the cell
+    for index, row in vehicles_in_cell.iterrows():
+        # Define the weight factors for each component of the resources evaluation
+        processing_power_weight = 0.5
+        available_storage_weight = 0.5
+
+        # Get the processing power and available storage for the vehicle from the DataFrame
+        processing_power = row['processing_power']
+        available_storage = row['available_storage']
+
+        # Calculate the resources evaluation
+        resources = (processing_power_weight * processing_power +
+                     available_storage_weight * available_storage)
+
+        # Save the calculated resources in the DataFrame
+        vehicle_data.loc[index, 'resources'] = resources
+
+    # Save the updated DataFrame to the CSV file
+    vehicle_data.to_csv('vehicle_data.csv', index=False)
+
+    return resources
+
+# Function to calculate cell data
+def get_cell_data(cell_id):
+    # Convert the cell ID back to a tuple
+    cell_id = ast.literal_eval(cell_id)
+
+    # Calculate the cell center
+    cell_center_x = (float(cell_id[0]) * cell_size) + (cell_size / 2)
+    cell_center_y = (float(cell_id[1]) * cell_size) + (cell_size / 2)
+    cell_center = (cell_center_x, cell_center_y)
+
+    # Calculate the cell radius
+    cell_radius = cell_size / 2
+
+    return cell_center, cell_radius
+
+# Function to calculate distance from the cell center
+def calculate_distance(random_cell_id):
+    # Get the cell center and radius for the random cell ID
+    cell_center, cell_radius = get_cell_data(random_cell_id)
+
+    # Initialize the 'distance' column for the entire DataFrame
+    vehicle_data['distance'] = np.nan
+
+    # Filter vehicles that are in the random cell
+    vehicles_in_cell = vehicle_data[vehicle_data['cell_id'] == str(random_cell_id)].copy()
+
+    for index, row in vehicles_in_cell.iterrows():
+        # Calculate the Euclidean distance between the vehicle and the cell center
+        raw_distance = math.sqrt((row['longitude'] - cell_center[0])**2 + (row['latitude'] - cell_center[1])**2)
+
+        # Subtract the cell radius from the calculated distance
+        distance = raw_distance - cell_radius
+
+        # Save the calculated distance in the copy of the DataFrame
+        vehicle_data.loc[index, 'distance'] = distance
+
+    # Return the DataFrame with the updated distances
+    return vehicle_data[vehicle_data['cell_id'] == str(random_cell_id)]
+
+# Function to select the group leader
+def select_group_leader(random_cell_id):
+
+    # Calculate resources for all vehicles in the given cell
+    evaluate_resources(random_cell_id) 
+
+    # Calculate distances for all vehicles in the randomly selected cell
+    calculate_distance(random_cell_id)
+
+    # Filter the DataFrame to only include vehicles in the randomly selected cell
+    cell_vehicles = vehicle_data[vehicle_data['cell_id'] == str(random_cell_id)]
+
+    # Initialize the maximum total value and the group leader ID
+    max_total_value = -1
+    group_leader_id = None
+
+    # Iterate over all vehicles in the cell
+    for index, row in cell_vehicles.iterrows():
+        # Calculate the centrality of the vehicle
+        Centerness = 1 / row['distance'] if row['distance'] != 0 else float('inf')
+
+        # Get the total value for the vehicle
+        Rules_obyed = row['traffic_rules_obeyed']
+        Resources = row['resources']  # assuming resources is a column in your DataFrame
+        total_value = Rules_obyed + Centerness + Resources
+
+        # Update the maximum total value and the group leader ID
+        if total_value > max_total_value:
+            max_total_value = total_value
+            group_leader_id = row['vehicle_id']
+
+    # Set the group_leader column to False for all vehicles
+    vehicle_data['group_leader'] = False
+
+    # Set the group_leader column to True for the selected group leader
+    vehicle_data.loc[vehicle_data['vehicle_id'] == group_leader_id, 'group_leader'] = True
+
+    # Save the updated DataFrame to the CSV file
+    vehicle_data.to_csv('vehicle_data.csv', index=False)
+
+    return group_leader_id
+
+
+# Select a group leader for the random cell
+group_leader_id = select_group_leader(random_cell_id)
+
+# Print the selected random cell ID and the group leader ID
+print(f"Selected random cell ID: {random_cell_id}")
+print(f"Selected group leader ID: {group_leader_id}")
+
