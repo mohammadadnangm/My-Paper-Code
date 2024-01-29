@@ -96,6 +96,12 @@ vehicle_data.to_csv('vehicle_data.csv', index=False)
 # When finished reading the data, stop the simulation
 traci.close()  # Close the TraCI connection
 
+
+
+
+
+
+
 # Assuming the vehicle_data DataFrame is already loaded
 vehicle_data = pd.read_csv('vehicle_data.csv')
 
@@ -104,6 +110,8 @@ unique_cell_ids = vehicle_data['cell_id'].unique()
 
 # Select a random cell ID
 random_cell_id = random.choice(unique_cell_ids)
+
+
 
 # Function to evaluate resources
 def evaluate_resources(random_cell_id):
