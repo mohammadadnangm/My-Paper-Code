@@ -35,9 +35,11 @@ def select_group_leader(vehicle_data, selected_cell_id):
             max_total_value = total_value
             group_leader_id = row['vehicle_id']
 
-    # Initialize the 'group_leader' column with False for only the vehicles in the selected cell
-    vehicle_data['group_leader'] = vehicle_data['group_leader'].astype(bool)
-    vehicle_data.loc[vehicle_data['cell_id'] == selected_cell_id, 'group_leader'] = False
+    # Initialize the 'group_leader' column with False for all vehicles
+    if 'group_leader' not in vehicle_data.columns:
+        vehicle_data['group_leader'] = False
+    else:
+        vehicle_data['group_leader'] = vehicle_data['group_leader'].astype(bool)
 
     # Now you can assign boolean values without any warning
     vehicle_data.loc[vehicle_data['vehicle_id'] == group_leader_id, 'group_leader'] = True
