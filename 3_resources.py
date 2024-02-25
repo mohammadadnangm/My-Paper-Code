@@ -1,14 +1,12 @@
 import pandas as pd
 import numpy as np
-import math
-import ast
 
-# Assuming the vehicle_data DataFrame is already loaded
-vehicle_data = pd.read_csv('vehicle_data.csv')
 
-# Read the selected cell ID from the file
-with open('selected_cell_id.txt', 'r') as file:
-    selected_cell_id = file.read().strip()
+# Load the selected vehicle data
+vehicle_data = pd.read_csv('selected_vehicle_data.csv')
+
+# Read the selected cell ID from the DataFrame
+selected_cell_id = vehicle_data['cell_id'].unique()[0]
 
 # Function to evaluate resources
 def evaluate_resources(vehicle_data, selected_cell_id):
@@ -33,10 +31,10 @@ def evaluate_resources(vehicle_data, selected_cell_id):
         vehicle_data.loc[index, 'resources'] = resources
 
     # Save the updated DataFrame to a CSV file
-    vehicle_data.to_csv('vehicle_data.csv', index=False)
+    vehicle_data.to_csv('selected_vehicle_data.csv', index=False)
 
     # Print the information
-    print(f"Resources of all vehicles in cell ID {selected_cell_id} having {len(vehicle_rows)} vehicles calculated and saved into data.")
+    print(f"Resources of {len(vehicle_rows)} vehicles from cell ID {selected_cell_id} is calculated and saved into data.")
 
     return vehicle_data
 

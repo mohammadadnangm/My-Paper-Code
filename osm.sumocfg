@@ -7,7 +7,7 @@
 
     <input>
         <net-file value="osm.net.xml"/>
-        <route-files value="osm.passenger.trips.xml"/>
+        <route-files value="osm.passenger.trips_200.xml"/>
         <additional-files value="osm.poly.xml"/>
     </input>
 
@@ -20,7 +20,7 @@
         <!-- <end value="300"/> End time of the simulation (in seconds) -->
     <!-- </time> -->
 
-    <max-num-vehicles value="100"/> <!-- Maximum number of vehicles to be used -->
+    <max-num-vehicles value="200"/> <!-- Maximum number of vehicles to be used -->
 
     <routing>
         <device.rerouting.adaptation-steps value="18"/>

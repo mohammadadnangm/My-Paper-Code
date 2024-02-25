@@ -1,10 +1,7 @@
-# Import necessary libraries
 import tensorflow as tf
-print(tf.__version__)
 import tensorflow_federated as tff
-print(tff.__version__)
 import pandas as pd
-print(pd.__version__)
+
 
 
 # Function to read leader info

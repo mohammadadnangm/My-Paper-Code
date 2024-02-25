@@ -3,12 +3,12 @@ import numpy as np
 import math
 import ast
 
-# Assuming the vehicle_data DataFrame is already loaded
-vehicle_data = pd.read_csv('vehicle_data.csv')
 
-# Read the selected cell ID from the file
-with open('selected_cell_id.txt', 'r') as file:
-    selected_cell_id = file.read().strip()
+# Load the selected vehicle data
+vehicle_data = pd.read_csv('selected_vehicle_data.csv')
+
+# Read the selected cell ID from the DataFrame
+selected_cell_id = vehicle_data['cell_id'].unique()[0]
 
 # Function to calculate distance from the cell center
 def calculate_distance(vehicle_data, selected_cell_id, cell_size):
@@ -17,6 +17,9 @@ def calculate_distance(vehicle_data, selected_cell_id, cell_size):
 
     # Filter the DataFrame to only include vehicles in the selected cell
     cell_vehicles = vehicle_data[vehicle_data['cell_id'] == selected_cell_id]
+
+    # Initialize a counter for the number of vehicles
+    vehicle_count = 0
 
     # Iterate over all vehicles in the cell
     for index, row in cell_vehicles.iterrows():
@@ -29,11 +32,14 @@ def calculate_distance(vehicle_data, selected_cell_id, cell_size):
         # Save the calculated distance in the DataFrame
         vehicle_data.loc[index, 'distance'] = distance
 
+        # Increment the vehicle counter
+        vehicle_count += 1
+
     # Save the updated DataFrame to a CSV file
-    vehicle_data.to_csv('vehicle_data.csv', index=False)
+    vehicle_data.to_csv('selected_vehicle_data.csv', index=False)
 
     # Print the information
-    print(f"Distances of all vehciles in cell ID {selected_cell_id} having {len(cell_vehicles)} vehicles calculated and saved into data.")
+    print(f"Distances of {vehicle_count} vehicles from cell ID {selected_cell_id} is calculated and saved into data.")
 
     return vehicle_data
 

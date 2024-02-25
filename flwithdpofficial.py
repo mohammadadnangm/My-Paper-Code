@@ -23,7 +23,8 @@ def get_vehicle_dataset():
     # Preprocess your data here. This is just an example.
     # You need to replace this with your own preprocessing steps.
     def preprocess_data(data):
-        # Normalize data, handle missing values, etc.
+
+
         return data
 
     vehicle_data = preprocess_data(vehicle_data)
